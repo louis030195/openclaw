@@ -71,6 +71,7 @@ async function fixture({
       },
     },
   };
+  const recordedRun = { status: "running", origin: {}, verification: {}, steps: [] };
   const opts = { json: true, yes: true, run };
   const assertCurrent = () => run.executorFence.assertCurrent();
   const restartContext = {
@@ -155,7 +156,13 @@ async function fixture({
     GatewayServiceUpdateOwnershipError: class extends Error {},
     DEFINITION_DENIAL: /fixture-definition-denial/,
     resolveGatewayService: () => service,
+    isContainerEnvironment: () => false,
+    resolveStateDir: () => "/fixture/state",
     getUpdateRun: () => undefined,
+    mutateRun: (_id, update) => {
+      update(recordedRun);
+      return recordedRun;
+    },
     recordUpdateRunPhase: (_id, phase) => phases.push(phase),
     recordUpdateRunVerification: (_id, record) => records.push(record),
     recordUpdateRunDiagnostics: (_id, readResult) => {
